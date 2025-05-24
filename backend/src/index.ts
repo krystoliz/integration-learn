@@ -8,8 +8,23 @@ dotenv.config(); // Load environment variables from .env
 const app = express();
 const PORT = process.env.PORT || 5000; // Use port from .env or default to 5000
 
+const allowedOrigins = [
+    'http://localhost:3000', //local deployment
+    process.env.FRONTEND_URL //deployed Next.js app URL
+];
+
+const corsOptions: cors.CorsOptions = {
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    optionsSuccessStatus: 200 // Some legacy browsers (IE11, various SmartTVs) choke on 204
+};
 // Middleware
-app.use(cors()); // Enable CORS for all routes
+app.use(cors(corsOptions)); // Enable CORS for all routes // Apply CORS options
 app.use(express.json()); // For parsing application/json
 
 // --- Routes ---
